@@ -9,10 +9,13 @@ class BaseAsset:
     def update_inflation(self, inflation_rate):
         self.inflation = inflation_rate
 
+    def get_freq(self):
+        return self.freq
+
 
 class CashFlow(BaseAsset):
 
-    def __init__(self, name, profile_type, inflation, first_step=None, step_stride=None, step_size_init=None,
+    def __init__(self, name, profile_type, inflation, freq, first_step=None, step_stride=None, step_size_init=None,
                  step_growth=None, transactions=None):
         self.name = name
         self.profile_type = profile_type
@@ -20,10 +23,10 @@ class CashFlow(BaseAsset):
         self.step_stride = step_stride
         self.step_size_init = step_size_init
         self.inflation = inflation
+        self.freq = freq
         self.age = -1
-        assert self.profile_type in ["constant",
-                                     "linear_interpolation",
-                                     "step_function",
+        # TODO: Add noise to cashflows (expenses may not be static, while income usually is)
+        assert self.profile_type in ["step_function",
                                      "discrete"], f"Returns type '{self.profile_type}' not supported"
         if self.profile_type == "step_function":
             assert first_step != None, f"Undefined first_step in step_function type"
@@ -166,6 +169,7 @@ if __name__ == "__main__":
     test2 = CashFlow(name='Test2',
                      profile_type='step_function',
                      inflation=0.02,
+                     freq=12,
                      first_step=0,
                      step_stride= 12,
                      step_size_init=485,
@@ -178,6 +182,7 @@ if __name__ == "__main__":
     test3 = CashFlow(name='Test3',
                      profile_type='discrete',
                      inflation=0.02,
+                     freq=12,
                      transactions=[(1, 123), (3, 100.0), (50, 34)])
     for i in range(100):
         print(i, test3.next_iter())
